@@ -1,0 +1,1137 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>饮食与训练计划</title>
+    <style>
+      button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) { min-height: 2rem; }
+    </style>
+    <style>
+      :root {
+        --bg: #f7f5ef;
+        --surface: #fffdf8;
+        --surface-2: #efeadd;
+        --ink: #23281f;
+        --ink-soft: #4c5344;
+        --ink-faint: #767e6e;
+        --line: #ddd6c4;
+        --olive: #5c6b2f;
+        --olive-deep: #42501f;
+        --olive-soft: #e7ecd4;
+        --terra: #b4552d;
+        --terra-soft: #f6e3d8;
+        --sea: #1f5f6e;
+        --sea-soft: #d9eaed;
+        --gold: #a97b1e;
+        --gold-soft: #f3e8cd;
+        --shadow: 0 1px 2px rgba(35, 40, 31, .06), 0 8px 24px rgba(35, 40, 31, .05);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #171a14;
+          --surface: #20241c;
+          --surface-2: #262b21;
+          --ink: #eceee4;
+          --ink-soft: #c3c9b6;
+          --ink-faint: #98a08c;
+          --line: #3a4033;
+          --olive: #a9bd6d;
+          --olive-deep: #c3d48d;
+          --olive-soft: #2e3620;
+          --terra: #e08a5f;
+          --terra-soft: #3d2a20;
+          --sea: #7cc3d4;
+          --sea-soft: #1d3238;
+          --gold: #dcb45e;
+          --gold-soft: #38301d;
+          --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+        }
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+        line-height: 1.65;
+        font-size: 16px;
+      }
+      .wrap { max-width: 880px; margin: 0 auto; padding: 20px 16px 56px; }
+      h1, h2, h3 { line-height: 1.3; margin: 0; }
+      h2 {
+        font-size: 1.28rem; font-weight: 700; letter-spacing: .01em;
+        display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+      }
+      h2 .h2-note { font-size: .82rem; font-weight: 400; color: var(--ink-faint); }
+      section { margin-top: 34px; }
+      p { margin: 0; }
+      .num { font-variant-numeric: tabular-nums; font-family: Georgia, "Times New Roman", serif; }
+
+      /* ---------- verification banner ---------- */
+      .verify {
+        border: 1.5px solid var(--gold); background: var(--gold-soft);
+        border-radius: 12px; padding: 14px 18px; font-size: .93rem;
+      }
+      .verify b { color: var(--gold); }
+      .verify .vt { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+
+      /* ---------- adjustment note ---------- */
+      .adjust {
+        border: 1.5px solid var(--olive); background: var(--olive-soft);
+        border-radius: 12px; padding: 14px 18px; font-size: .93rem; margin-top: 18px;
+      }
+      .adjust .at { font-weight: 700; font-size: 1rem; margin-bottom: 4px; color: var(--olive-deep); }
+      .adjust ul { margin: 6px 0 0; padding-left: 1.25em; }
+      .adjust li { margin: 4px 0; }
+
+      /* ---------- lead ---------- */
+      .lead { margin-top: 18px; }
+      .lead h1 { font-size: 1.6rem; font-weight: 800; }
+      .lead .sub { color: var(--ink-soft); margin-top: 6px; font-size: .95rem; }
+
+      /* ---------- stat grid ---------- */
+      .stat-grid {
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px;
+      }
+      .stat {
+        background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+        padding: 12px 14px; box-shadow: var(--shadow);
+      }
+      .stat .k { font-size: .78rem; color: var(--ink-faint); }
+      .stat .v { font-size: 1.45rem; font-weight: 700; margin-top: 2px; }
+      .stat .v small { font-size: .8rem; font-weight: 400; color: var(--ink-soft); }
+      .stat .d { font-size: .78rem; color: var(--ink-soft); margin-top: 2px; }
+
+      /* ---------- timeline ---------- */
+      .timeline { margin-top: 8px; }
+      .meal {
+        display: grid; grid-template-columns: 118px 1fr; gap: 14px;
+        padding: 16px 0; border-bottom: 1px dashed var(--line);
+      }
+      .meal:last-child { border-bottom: none; }
+      .meal .time { text-align: right; padding-top: 2px; }
+      .meal .time .t { font-size: 1rem; font-weight: 700; }
+      .meal .time .tag {
+        display: inline-block; margin-top: 4px; font-size: .72rem; padding: 1px 8px;
+        border-radius: 999px; background: var(--olive-soft); color: var(--olive-deep);
+      }
+      .meal .time .tag.train { background: var(--terra-soft); color: var(--terra); }
+      .meal .time .tag.swim { background: var(--sea-soft); color: var(--sea); }
+      .meal h3 { font-size: 1.05rem; font-weight: 700; }
+      .meal .why { font-size: .88rem; color: var(--ink-soft); margin-top: 2px; }
+      .meal .foods { margin-top: 8px; font-size: .95rem; }
+      .meal .foods li { margin: 2px 0; }
+      .meal ul { margin: 0; padding-left: 1.15em; }
+      .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 9px; }
+      .chip {
+        font-size: .78rem; padding: 2px 10px; border-radius: 999px;
+        border: 1px solid var(--line); color: var(--ink-soft); background: var(--surface);
+      }
+      .chip b { color: var(--ink); font-weight: 600; }
+
+      /* ---------- cards & lists ---------- */
+      .card {
+        background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+        padding: 18px; box-shadow: var(--shadow); margin-top: 14px;
+      }
+      .prep-list { list-style: none; margin: 12px 0 0; padding: 0; }
+      .prep-list li {
+        display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--line);
+        align-items: flex-start;
+      }
+      .prep-list li:last-child { border-bottom: none; }
+      .prep-list .box {
+        flex: 0 0 auto; width: 20px; height: 20px; margin-top: 3px;
+        border: 2px solid var(--olive); border-radius: 5px;
+      }
+      .prep-list .pt { font-weight: 600; }
+      .prep-list .pd { font-size: .88rem; color: var(--ink-soft); }
+      .rules { margin: 12px 0 0; padding-left: 1.3em; }
+      .rules li { margin: 10px 0; }
+      .rules b { color: var(--olive-deep); }
+      .swap { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: .93rem; }
+      .swap th, .swap td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+      .swap th { font-size: .8rem; color: var(--ink-faint); font-weight: 600; }
+      .swap td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; }
+      .pending {
+        margin-top: 14px; border: 1.5px dashed var(--line); border-radius: 12px;
+        padding: 16px 18px; background: var(--surface-2); font-size: .93rem; color: var(--ink-soft);
+      }
+      .pending b { color: var(--ink); }
+      .daygrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 14px; }
+      .daygrid .day {
+        background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+        padding: 10px 8px; text-align: center;
+      }
+      .daygrid .dw { font-size: .78rem; color: var(--ink-faint); }
+      .daygrid .dp { font-weight: 700; font-size: .92rem; margin-top: 3px; }
+      .daygrid .dn { font-size: .76rem; color: var(--ink-soft); margin-top: 2px; }
+      .daygrid .day.rest { opacity: .65; }
+      .daygrid .day.today { border-color: var(--olive); background: var(--olive-soft); }
+
+      /* ---------- day cards (week meals) ---------- */
+      .dayhead { font-size: 1.12rem; font-weight: 700; margin-top: 26px; }
+      .dayhead .dh-note { font-size: .82rem; font-weight: 400; color: var(--ink-faint); }
+      .daymeals { list-style: none; margin: 12px 0 0; padding: 0; }
+      .daymeals li {
+        display: grid; grid-template-columns: 118px 1fr; gap: 12px;
+        padding: 7px 0; border-bottom: 1px dashed var(--line); font-size: .95rem;
+      }
+      .daymeals li:last-child { border-bottom: none; }
+      .daymeals .dm-t { font-weight: 700; text-align: right; font-size: .9rem; padding-top: 1px; }
+      .daymeals .dm-t .tag {
+        display: inline-block; margin-left: 6px; font-size: .7rem; padding: 0 7px; font-weight: 400;
+        border-radius: 999px; background: var(--olive-soft); color: var(--olive-deep);
+      }
+      .daymeals .dm-t .tag.train { background: var(--terra-soft); color: var(--terra); }
+      .daymeals .dm-t .tag.swim { background: var(--sea-soft); color: var(--sea); }
+      .day-ing { margin-top: 12px; font-size: .88rem; color: var(--ink-soft); }
+      .day-ing .di-k { font-weight: 600; color: var(--ink); margin-bottom: 6px; font-size: .9rem; }
+      .dm-name { font-weight: 700; }
+      .dm-foods { list-style: none; margin: 3px 0 0; padding: 0; }
+      .daymeals .dm-foods li {
+        display: block; padding: 1px 0; border-bottom: none;
+        font-size: .93rem; color: var(--ink-soft);
+      }
+      .dm-foods b { color: var(--ink); font-weight: 600; }
+      .dm-note { font-size: .85rem; color: var(--ink-faint); margin-top: 3px; }
+      @media (max-width: 640px) {
+        .daymeals li { grid-template-columns: 92px 1fr; gap: 9px; }
+      }
+      .foot { margin-top: 40px; font-size: .82rem; color: var(--ink-faint); }
+
+      /* ---------- folded detail blocks ---------- */
+      details.fold {
+        background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+        box-shadow: var(--shadow); margin-top: 12px;
+      }
+      details.fold > summary {
+        cursor: pointer; list-style: none; padding: 14px 18px;
+        font-weight: 700; font-size: 1rem; color: var(--ink);
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      }
+      details.fold > summary::-webkit-details-marker { display: none; }
+      details.fold > summary::after {
+        content: "展开"; flex: 0 0 auto; font-size: .78rem; font-weight: 400;
+        color: var(--olive-deep); background: var(--olive-soft);
+        padding: 2px 12px; border-radius: 999px;
+      }
+      details.fold[open] > summary::after { content: "收起"; }
+      details.fold .fold-body { padding: 0 18px 18px; }
+      details.fold .fold-body > .card { margin-top: 0; box-shadow: none; }
+      details.fold .fold-body > .verify,
+      details.fold .fold-body > .adjust { margin-top: 0; }
+      .fold-sub { font-size: 1rem; font-weight: 700; margin-top: 18px; }
+      .fold-sub:first-child { margin-top: 0; }
+      .fold-sub .h2-note { font-size: .82rem; font-weight: 400; color: var(--ink-faint); }
+      .fold-note { font-size: .85rem; color: var(--ink-faint); margin-bottom: 10px; }
+
+      @media (max-width: 640px) {
+        .stat-grid { grid-template-columns: 1fr 1fr; }
+        .daygrid { grid-template-columns: repeat(4, 1fr); }
+        .meal { grid-template-columns: 96px 1fr; gap: 10px; }
+        .meal .time .t { font-size: .92rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+
+<div class="lead">
+        <h1>一周食谱：11 月 23 日 – 11 月 29 日</h1>
+        <p class="sub">66 kg · 178 cm。本周力量全部暂停，下周看情况恢复；游泳不变，在周三、周五晚上和周日。这一周按上一周（11/16–11/22）同一天的模板和轮换排，称重口径（干重 / 生重 / 熟重）不变；力量暂停的四天（周一、二、四、五）午餐去掉 FOYES，本周 FOYES 只剩周三、周日游泳后各 35 克，合计 70 克。上一周的食谱折叠收在本周下面。</p>
+      </div>
+
+<section>
+        <h2>整周食谱 11/23–11/29 <span class="h2-note">按上一周同一天模板排 · 每餐克数写明</span></h2>
+
+        <h3 class="dayhead">周一 11/23 <span class="dh-note">午间力量 · 暂停</span></h3>
+        <div class="card">
+          <ul class="daymeals">
+            <li><span class="dm-t num">08:30–09:00</span><div>
+              <div class="dm-name">早餐</div>
+              <ul class="dm-foods">
+                <li>燕麦 <b>70 克</b>（干重）</li>
+                <li>鸡蛋 <b>1 个</b></li>
+                <li>酸奶 <b>135 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">12:00–12:40</span><div>
+              <div class="dm-name">午间力量训练 · 暂停</div>
+              <p class="dm-note">本周力量停练，下周看情况恢复。</p>
+            </div></li>
+            <li><span class="dm-t num">12:45–13:00</span><div>
+              <div class="dm-name">午餐</div>
+              <ul class="dm-foods">
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>琵琶腿 <b>200 克</b>（去皮去骨、生重）</li>
+                <li>蔬菜 <b>150–200 克</b>（黄瓜、包菜、胡萝卜）</li>
+                <li>橄榄油 <b>15 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">15:00</span><div>
+              <div class="dm-name">加餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>40 克</b>（便携下午茶）</li>
+                <li>水果 <b>150 克</b></li>
+                <li>无盐坚果 <b>10 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">19:30</span><div>
+              <div class="dm-name">晚餐</div>
+              <ul class="dm-foods">
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>琵琶腿 <b>150 克</b>（去皮去骨、生重）</li>
+                <li>蔬菜 <b>150–200 克</b>（黄瓜、包菜、胡萝卜）</li>
+                <li>鹰嘴豆 <b>100 克</b>（煮熟沥水重）</li>
+                <li>橄榄油 <b>10 克</b></li>
+              </ul>
+            </div></li>
+          </ul>
+        </div>
+
+        <h3 class="dayhead">周二 11/24 <span class="dh-note">午间力量 · 暂停</span></h3>
+        <div class="card">
+          <ul class="daymeals">
+            <li><span class="dm-t num">08:30–09:00</span><div>
+              <div class="dm-name">早餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>105 克</b></li>
+                <li>鸡蛋 <b>1 个</b></li>
+                <li>酸奶 <b>135 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">12:00–12:40</span><div>
+              <div class="dm-name">午间力量训练 · 暂停</div>
+              <p class="dm-note">本周力量停练，下周看情况恢复。</p>
+            </div></li>
+            <li><span class="dm-t num">12:45–13:00</span><div>
+              <div class="dm-name">午餐</div>
+              <ul class="dm-foods">
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>金枪鱼 <b>120 克</b>（罐头沥水重）</li>
+                <li>蔬菜 <b>150–200 克</b>（西兰花、菠菜、茄子）</li>
+                <li>橄榄油 <b>15 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">15:00</span><div>
+              <div class="dm-name">加餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>40 克</b>（便携下午茶）</li>
+                <li>水果 <b>150 克</b></li>
+                <li>无盐坚果 <b>10 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">19:30</span><div>
+              <div class="dm-name">晚餐</div>
+              <ul class="dm-foods">
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>虾 <b>150 克</b>（净虾仁、生重）</li>
+                <li>蔬菜 <b>150–200 克</b>（西兰花、菠菜、茄子）</li>
+                <li>鹰嘴豆 <b>100 克</b>（煮熟沥水重）</li>
+                <li>橄榄油 <b>10 克</b></li>
+              </ul>
+            </div></li>
+          </ul>
+        </div>
+
+        <h3 class="dayhead">周三 11/25 <span class="dh-note">晚间游泳</span></h3>
+        <div class="card">
+          <ul class="daymeals">
+            <li><span class="dm-t num">08:30–09:00</span><div>
+              <div class="dm-name">早餐</div>
+              <ul class="dm-foods">
+                <li>燕麦 <b>70 克</b>（干重）</li>
+                <li>鸡蛋 <b>1 个</b></li>
+                <li>酸奶 <b>135 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">12:45–13:00</span><div>
+              <div class="dm-name">午餐</div>
+              <ul class="dm-foods">
+                <li>鸡胸肉片 <b>200 克</b>（生重）</li>
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>荞麦面 <b>30 克</b>（干重）</li>
+                <li>蔬菜 <b>150–200 克</b>（西葫芦、菜花、甜椒）</li>
+                <li>橄榄油 <b>15 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">15:00</span><div>
+              <div class="dm-name">加餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>40 克</b>（便携下午茶）</li>
+                <li>水果 <b>150 克</b></li>
+                <li>无盐坚果 <b>10 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">19:00</span><div>
+              <div class="dm-name">晚餐 · 游前</div>
+              <ul class="dm-foods">
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>荞麦面 <b>30 克</b>（干重，游前吃）</li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">20:00</span><div>
+              <div class="dm-name">游泳</div>
+            </div></li>
+            <li><span class="dm-t num">21:00–21:30</span><div>
+              <div class="dm-name">游后</div>
+              <ul class="dm-foods">
+                <li>鸡胸肉片 <b>100 克</b>（生重）</li>
+                <li>蔬菜 <b>100 克</b>（西葫芦、菜花、甜椒）</li>
+                <li>FOYES <b>35 克</b></li>
+                <li>橄榄油 <b>5 克</b></li>
+              </ul>
+            </div></li>
+          </ul>
+        </div>
+
+        <h3 class="dayhead">周四 11/26 <span class="dh-note">午间力量 · 暂停</span></h3>
+        <div class="card">
+          <ul class="daymeals">
+            <li><span class="dm-t num">08:30–09:00</span><div>
+              <div class="dm-name">早餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>105 克</b></li>
+                <li>鸡蛋 <b>1 个</b></li>
+                <li>酸奶 <b>135 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">12:00–12:40</span><div>
+              <div class="dm-name">午间力量训练 · 暂停</div>
+              <p class="dm-note">本周力量停练，下周看情况恢复。</p>
+            </div></li>
+            <li><span class="dm-t num">12:45–13:00</span><div>
+              <div class="dm-name">午餐</div>
+              <ul class="dm-foods">
+                <li>荞麦面 <b>120 克</b>（干重，2 整包，不减量）</li>
+                <li>虾 <b>200 克</b>（净虾仁、生重）</li>
+                <li>蔬菜 <b>150–200 克</b>（黄瓜、包菜、胡萝卜）</li>
+                <li>橄榄油 <b>15 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">15:00</span><div>
+              <div class="dm-name">加餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>40 克</b>（便携下午茶）</li>
+                <li>水果 <b>150 克</b></li>
+                <li>无盐坚果 <b>10 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">19:30</span><div>
+              <div class="dm-name">晚餐</div>
+              <ul class="dm-foods">
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>琵琶腿 <b>150 克</b>（去皮去骨、生重）</li>
+                <li>蔬菜 <b>150–200 克</b>（黄瓜、包菜、胡萝卜）</li>
+                <li>橄榄油 <b>10 克</b></li>
+              </ul>
+            </div></li>
+          </ul>
+        </div>
+
+        <h3 class="dayhead">周五 11/27 <span class="dh-note">午间力量 · 暂停 ＋ 晚间游泳 1100 米</span></h3>
+        <div class="card">
+          <ul class="daymeals">
+            <li><span class="dm-t num">08:30–09:00</span><div>
+              <div class="dm-name">早餐</div>
+              <ul class="dm-foods">
+                <li>燕麦 <b>70 克</b>（干重）</li>
+                <li>鸡蛋 <b>1 个</b></li>
+                <li>酸奶 <b>135 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">12:00–12:40</span><div>
+              <div class="dm-name">午间力量训练 · 暂停</div>
+              <p class="dm-note">本周力量停练，下周看情况恢复；晚上游泳照常。</p>
+            </div></li>
+            <li><span class="dm-t num">12:45–13:00</span><div>
+              <div class="dm-name">午餐</div>
+              <ul class="dm-foods">
+                <li>三文鱼排 <b>200 克</b>（一片）</li>
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>蔬菜 <b>150–200 克</b>（西兰花、菠菜、茄子）</li>
+                <li>橄榄油 <b>15 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">15:00</span><div>
+              <div class="dm-name">加餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>40 克</b></li>
+                <li>水果 <b>150 克</b></li>
+                <li>无盐坚果 <b>10 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">19:00</span><div>
+              <div class="dm-name">游前</div>
+              <ul class="dm-foods">
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>虾 <b>100 克</b>（净虾仁）</li>
+                <li>蔬菜 <b>100 克</b>（西兰花、菠菜、茄子）</li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">约 20:00</span><div>
+              <div class="dm-name">游泳 1100 米</div>
+            </div></li>
+            <li><span class="dm-t num">21:00–21:30</span><div>
+              <div class="dm-name">游后</div>
+              <ul class="dm-foods">
+                <li>蔬菜 <b>100 克</b>（西兰花、菠菜、茄子）</li>
+                <li>鹰嘴豆 <b>100 克</b>（煮熟沥水重）</li>
+                <li>橄榄油 <b>5 克</b></li>
+              </ul>
+            </div></li>
+          </ul>
+        </div>
+
+        <h3 class="dayhead">周六 11/28 <span class="dh-note">休息日</span></h3>
+        <div class="card">
+          <ul class="daymeals">
+            <li><span class="dm-t num">08:30–09:00</span><div>
+              <div class="dm-name">早餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>105 克</b></li>
+                <li>鸡蛋 <b>1 个</b></li>
+                <li>酸奶 <b>135 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">12:45–13:00</span><div>
+              <div class="dm-name">午餐</div>
+              <ul class="dm-foods">
+                <li>金枪鱼 <b>120 克</b>（罐头沥水重）</li>
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>荞麦面 <b>30 克</b>（干重）</li>
+                <li>蔬菜 <b>150–200 克</b>（西葫芦、菜花、甜椒）</li>
+                <li>橄榄油 <b>15 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">15:00</span><div>
+              <div class="dm-name">加餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>80 克</b>（便携下午茶）</li>
+                <li>水果 <b>150 克</b></li>
+                <li>无盐坚果 <b>10 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">19:30</span><div>
+              <div class="dm-name">晚餐</div>
+              <ul class="dm-foods">
+                <li>鸡胸肉片 <b>150 克</b>（生重）</li>
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>荞麦面 <b>30 克</b>（干重）</li>
+                <li>蔬菜 <b>150–200 克</b>（西葫芦、菜花、甜椒）</li>
+                <li>鹰嘴豆 <b>100 克</b>（煮熟沥水重）</li>
+                <li>橄榄油 <b>10 克</b></li>
+              </ul>
+            </div></li>
+          </ul>
+        </div>
+
+        <h3 class="dayhead">周日 11/29 <span class="dh-note">中午游泳 · 12:00–13:30，午餐分两顿</span></h3>
+        <div class="card">
+          <ul class="daymeals">
+            <li><span class="dm-t num">08:30–09:00</span><div>
+              <div class="dm-name">早餐</div>
+              <ul class="dm-foods">
+                <li>燕麦 <b>70 克</b>（干重）</li>
+                <li>鸡蛋 <b>1 个</b></li>
+                <li>酸奶 <b>135 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">约 11:30</span><div>
+              <div class="dm-name">游前</div>
+              <ul class="dm-foods">
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>蔬菜 <b>100 克</b>（黄瓜、包菜、胡萝卜）</li>
+              </ul>
+              <p class="dm-note">只吃碳水不吃肉，下水不顶胃。</p>
+            </div></li>
+            <li><span class="dm-t num">12:00–13:30</span><div>
+              <div class="dm-name">游泳</div>
+            </div></li>
+            <li><span class="dm-t num">约 13:30</span><div>
+              <div class="dm-name">游后午餐</div>
+              <ul class="dm-foods">
+                <li>鸡胸肉片 <b>200 克</b>（生重）</li>
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>蔬菜 <b>150–200 克</b>（黄瓜、包菜、胡萝卜）</li>
+                <li>FOYES <b>35 克</b></li>
+                <li>橄榄油 <b>15 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">15:00</span><div>
+              <div class="dm-name">加餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>40 克</b>（便携下午茶）</li>
+                <li>水果 <b>150 克</b></li>
+                <li>无盐坚果 <b>10 克</b></li>
+              </ul>
+              <p class="dm-note">13:30 吃饱了可以往后推到 16:00，或分着吃。</p>
+            </div></li>
+            <li><span class="dm-t num">19:30</span><div>
+              <div class="dm-name">晚餐</div>
+              <ul class="dm-foods">
+                <li>牛排 <b>100 克</b>（一片）</li>
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>蔬菜 <b>150–200 克</b>（黄瓜、包菜、胡萝卜）</li>
+                <li>橄榄油 <b>5 克</b></li>
+              </ul>
+              <p class="dm-note">正常吃，不再分游前游后。</p>
+            </div></li>
+          </ul>
+        </div>
+      </section>
+
+      <details class="fold">
+        <summary>上一周食谱 11/16–11/22（已结束，点开备查）</summary>
+        <div class="fold-body">
+
+        <h3 class="dayhead">周一 11/16 <span class="dh-note">午间力量</span></h3>
+        <div class="card">
+          <ul class="daymeals">
+            <li><span class="dm-t num">08:30–09:00</span><div>
+              <div class="dm-name">早餐</div>
+              <ul class="dm-foods">
+                <li>燕麦 <b>70 克</b>（干重）</li>
+                <li>鸡蛋 <b>1 个</b></li>
+                <li>酸奶 <b>135 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">12:45–13:00</span><div>
+              <div class="dm-name">午餐</div>
+              <ul class="dm-foods">
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>琵琶腿 <b>200 克</b>（去皮去骨、生重）</li>
+                <li>蔬菜 <b>150–200 克</b>（黄瓜、包菜、胡萝卜）</li>
+                <li>FOYES <b>75 克</b></li>
+                <li>橄榄油 <b>15 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">15:00</span><div>
+              <div class="dm-name">加餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>40 克</b>（便携下午茶）</li>
+                <li>水果 <b>150 克</b></li>
+                <li>无盐坚果 <b>10 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">19:30</span><div>
+              <div class="dm-name">晚餐</div>
+              <ul class="dm-foods">
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>琵琶腿 <b>150 克</b>（去皮去骨、生重）</li>
+                <li>蔬菜 <b>150–200 克</b>（黄瓜、包菜、胡萝卜）</li>
+                <li>鹰嘴豆 <b>100 克</b>（煮熟沥水重）</li>
+                <li>橄榄油 <b>10 克</b></li>
+              </ul>
+            </div></li>
+          </ul>
+        </div>
+
+        <h3 class="dayhead">周二 11/17 <span class="dh-note">午间力量</span></h3>
+        <div class="card">
+          <ul class="daymeals">
+            <li><span class="dm-t num">08:30–09:00</span><div>
+              <div class="dm-name">早餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>105 克</b></li>
+                <li>鸡蛋 <b>1 个</b></li>
+                <li>酸奶 <b>135 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">12:45–13:00</span><div>
+              <div class="dm-name">午餐</div>
+              <ul class="dm-foods">
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>奥尔良鸡排 <b>120 克</b>（自制，鸡胸肉生重，下锅前称）</li>
+                <li>蔬菜 <b>150–200 克</b>（西兰花、菠菜、茄子）</li>
+                <li>FOYES <b>75 克</b></li>
+                <li>橄榄油 <b>15 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">15:00</span><div>
+              <div class="dm-name">加餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>40 克</b>（便携下午茶）</li>
+                <li>水果 <b>150 克</b></li>
+                <li>无盐坚果 <b>10 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">19:30</span><div>
+              <div class="dm-name">晚餐</div>
+              <ul class="dm-foods">
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>虾 <b>150 克</b>（净虾仁、生重）</li>
+                <li>蔬菜 <b>150–200 克</b>（西兰花、菠菜、茄子）</li>
+                <li>鹰嘴豆 <b>100 克</b>（煮熟沥水重）</li>
+                <li>橄榄油 <b>10 克</b></li>
+              </ul>
+            </div></li>
+          </ul>
+        </div>
+
+        <h3 class="dayhead">周三 11/18 <span class="dh-note">晚间游泳 1500 米（食谱页的写法）</span></h3>
+        <div class="card">
+          <ul class="daymeals">
+            <li><span class="dm-t num">08:30–09:00</span><div>
+              <div class="dm-name">早餐</div>
+              <ul class="dm-foods">
+                <li>燕麦 <b>70 克</b>（干重）</li>
+                <li>鸡蛋 <b>1 个</b></li>
+                <li>酸奶 <b>135 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">12:45–13:00</span><div>
+              <div class="dm-name">午餐</div>
+              <ul class="dm-foods">
+                <li>鸡胸肉片 <b>200 克</b>（生重）</li>
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>荞麦面 <b>30 克</b>（干重）</li>
+                <li>蔬菜 <b>150–200 克</b>（西葫芦、菜花、甜椒）</li>
+                <li>橄榄油 <b>15 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">15:00</span><div>
+              <div class="dm-name">加餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>40 克</b>（便携下午茶）</li>
+                <li>水果 <b>150 克</b></li>
+                <li>无盐坚果 <b>10 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">19:00</span><div>
+              <div class="dm-name">晚餐 · 游前</div>
+              <ul class="dm-foods">
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>荞麦面 <b>30 克</b>（干重，游前吃）</li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">21:00–21:30</span><div>
+              <div class="dm-name">游后</div>
+              <ul class="dm-foods">
+                <li>鸡胸肉片 <b>100 克</b>（生重）</li>
+                <li>蔬菜 <b>100 克</b>（西葫芦、菜花、甜椒）</li>
+                <li>FOYES <b>35 克</b></li>
+                <li>橄榄油 <b>5 克</b></li>
+              </ul>
+            </div></li>
+          </ul>
+        </div>
+
+        <h3 class="dayhead">周四 11/19 <span class="dh-note">午间力量</span></h3>
+        <div class="card">
+          <ul class="daymeals">
+            <li><span class="dm-t num">08:30–09:00</span><div>
+              <div class="dm-name">早餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>105 克</b></li>
+                <li>鸡蛋 <b>1 个</b></li>
+                <li>酸奶 <b>135 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">12:45–13:00</span><div>
+              <div class="dm-name">午餐</div>
+              <ul class="dm-foods">
+                <li>荞麦面 <b>120 克</b>（干重，2 整包，不减量）</li>
+                <li>虾 <b>200 克</b>（净虾仁、生重）</li>
+                <li>蔬菜 <b>150–200 克</b>（黄瓜、包菜、胡萝卜）</li>
+                <li>FOYES <b>75 克</b></li>
+                <li>橄榄油 <b>15 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">15:00</span><div>
+              <div class="dm-name">加餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>40 克</b>（便携下午茶）</li>
+                <li>水果 <b>150 克</b></li>
+                <li>无盐坚果 <b>10 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">19:30</span><div>
+              <div class="dm-name">晚餐</div>
+              <ul class="dm-foods">
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>琵琶腿 <b>150 克</b>（去皮去骨、生重）</li>
+                <li>蔬菜 <b>150–200 克</b>（黄瓜、包菜、胡萝卜）</li>
+                <li>橄榄油 <b>10 克</b></li>
+              </ul>
+            </div></li>
+          </ul>
+        </div>
+
+        <h3 class="dayhead">周五 11/20 <span class="dh-note">午间力量 ＋ 晚间游泳 1100 米</span></h3>
+        <div class="card">
+          <ul class="daymeals">
+            <li><span class="dm-t num">08:30–09:00</span><div>
+              <div class="dm-name">早餐</div>
+              <ul class="dm-foods">
+                <li>燕麦 <b>70 克</b>（干重）</li>
+                <li>鸡蛋 <b>1 个</b></li>
+                <li>酸奶 <b>135 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">12:00–12:40</span><div>
+              <div class="dm-name">午间力量训练</div>
+            </div></li>
+            <li><span class="dm-t num">12:45–13:00</span><div>
+              <div class="dm-name">午餐</div>
+              <ul class="dm-foods">
+                <li>三文鱼排 <b>200 克</b>（一片）</li>
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>蔬菜 <b>150–200 克</b>（菠菜、西兰花、茄子）</li>
+                <li>FOYES <b>75 克</b></li>
+                <li>橄榄油 <b>15 克</b></li>
+              </ul>
+              <p class="dm-note">双练日 FOYES 只喝午间这一份，游后不再加粉。</p>
+            </div></li>
+            <li><span class="dm-t num">15:00</span><div>
+              <div class="dm-name">加餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>40 克</b></li>
+                <li>水果 <b>150 克</b></li>
+                <li>无盐坚果 <b>10 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">19:00</span><div>
+              <div class="dm-name">游前</div>
+              <ul class="dm-foods">
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>虾 <b>100 克</b>（净虾仁）</li>
+                <li>蔬菜 <b>100 克</b>（菠菜、西兰花、茄子）</li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">约 20:00</span><div>
+              <div class="dm-name">游泳 1100 米</div>
+            </div></li>
+            <li><span class="dm-t num">21:00–21:30</span><div>
+              <div class="dm-name">游后</div>
+              <ul class="dm-foods">
+                <li>蔬菜 <b>100 克</b>（菠菜、西兰花、茄子）</li>
+                <li>鹰嘴豆 <b>100 克</b>（煮熟沥水重）</li>
+                <li>橄榄油 <b>5 克</b></li>
+              </ul>
+            </div></li>
+          </ul>
+        </div>
+
+        <h3 class="dayhead">周六 11/21 <span class="dh-note">休息日</span></h3>
+        <div class="card">
+          <ul class="daymeals">
+            <li><span class="dm-t num">08:30–09:00</span><div>
+              <div class="dm-name">早餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>105 克</b></li>
+                <li>鸡蛋 <b>1 个</b></li>
+                <li>酸奶 <b>135 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">12:45–13:00</span><div>
+              <div class="dm-name">午餐</div>
+              <ul class="dm-foods">
+                <li>金枪鱼 <b>120 克</b>（罐头沥水重）</li>
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>荞麦面 <b>30 克</b>（干重）</li>
+                <li>蔬菜 <b>150–200 克</b>（西葫芦、菜花、甜椒）</li>
+                <li>橄榄油 <b>15 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">15:00</span><div>
+              <div class="dm-name">加餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>80 克</b>（便携下午茶）</li>
+                <li>水果 <b>150 克</b></li>
+                <li>无盐坚果 <b>10 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">19:30</span><div>
+              <div class="dm-name">晚餐</div>
+              <ul class="dm-foods">
+                <li>鸡胸肉片 <b>150 克</b>（生重）</li>
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>荞麦面 <b>30 克</b>（干重）</li>
+                <li>蔬菜 <b>150–200 克</b>（西葫芦、菜花、甜椒）</li>
+                <li>鹰嘴豆 <b>100 克</b>（煮熟沥水重）</li>
+                <li>橄榄油 <b>10 克</b></li>
+              </ul>
+            </div></li>
+          </ul>
+        </div>
+
+        <h3 class="dayhead">周日 11/22 <span class="dh-note">中午游泳 1800 米 · 12:00–13:30，午餐分两顿（2026 年 11 月 15 日按实际作息调整）</span></h3>
+        <div class="card">
+          <ul class="daymeals">
+            <li><span class="dm-t num">08:30–09:00</span><div>
+              <div class="dm-name">早餐</div>
+              <ul class="dm-foods">
+                <li>燕麦 <b>70 克</b>（干重）</li>
+                <li>鸡蛋 <b>1 个</b></li>
+                <li>酸奶 <b>135 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">约 11:30</span><div>
+              <div class="dm-name">游前</div>
+              <ul class="dm-foods">
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>蔬菜 <b>100 克</b>（黄瓜、包菜、胡萝卜）</li>
+              </ul>
+              <p class="dm-note">只吃碳水不吃肉，下水不顶胃。</p>
+            </div></li>
+            <li><span class="dm-t num">12:00–13:30</span><div>
+              <div class="dm-name">游泳 · 1800 米</div>
+            </div></li>
+            <li><span class="dm-t num">约 13:30</span><div>
+              <div class="dm-name">游后午餐</div>
+              <ul class="dm-foods">
+                <li>鸡胸肉片 <b>200 克</b>（生重）</li>
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>蔬菜 <b>150–200 克</b>（包菜、胡萝卜、黄瓜）</li>
+                <li>FOYES <b>35 克</b></li>
+                <li>橄榄油 <b>15 克</b></li>
+              </ul>
+            </div></li>
+            <li><span class="dm-t num">15:00</span><div>
+              <div class="dm-name">加餐</div>
+              <ul class="dm-foods">
+                <li>全麦面包 <b>40 克</b>（便携下午茶）</li>
+                <li>水果 <b>150 克</b></li>
+                <li>无盐坚果 <b>10 克</b></li>
+              </ul>
+              <p class="dm-note">13:30 吃饱了可以往后推到 16:00，或分着吃。</p>
+            </div></li>
+            <li><span class="dm-t num">19:30</span><div>
+              <div class="dm-name">晚餐</div>
+              <ul class="dm-foods">
+                <li>牛排 <b>100 克</b>（一片）</li>
+                <li>米饭 <b>150 克</b>（1 包，熟重）</li>
+                <li>蔬菜 <b>150–200 克</b>（黄瓜、包菜、胡萝卜）</li>
+                <li>橄榄油 <b>5 克</b></li>
+              </ul>
+              <p class="dm-note">正常吃，不再分游前游后。</p>
+            </div></li>
+          </ul>
+        </div>
+        </div>
+      </details>
+
+<section>
+        <h2>训练状态 <span class="h2-note">本地站训练数据，2026 年 11 月 15 日看到的</span></h2>
+        <div class="stat-grid">
+          <div class="stat">
+            <div class="k">当前阶段</div>
+            <div class="v" style="font-size:1.15rem">有氧基础期 · 第 2 周</div>
+            <div class="d">游泳为主线</div>
+          </div>
+          <div class="stat">
+            <div class="k">负荷比</div>
+            <div class="v"><span class="num">0.57</span></div>
+            <div class="d">准备度 <span class="num">70</span></div>
+          </div>
+          <div class="stat">
+            <div class="k">本周已完成</div>
+            <div class="v"><span class="num">4,200</span> <small>米</small></div>
+            <div class="d">游泳距离</div>
+          </div>
+          <div class="stat">
+            <div class="k">最近一次训练</div>
+            <div class="v" style="font-size:1.15rem"><span class="num">1,300</span> 米</div>
+            <div class="d">6 天前 · 配速 2 分 11 秒</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:1rem">接下来与待补练</h3>
+          <ul class="rules" style="list-style:none;padding-left:0">
+            <li><b>待补练：</b>11 月 13 日周五的 1100 米轻松恢复游，还没补。</li>
+            <li><b>接下来：</b>1800 米自由泳有氧长游。</li>
+          </ul>
+        </div>
+
+        <h3 style="font-size:1rem;margin-top:20px">一周训练安排</h3>
+        <div class="daygrid">
+          <div class="day"><div class="dw">周一</div><div class="dp">力量</div><div class="dn">上肢 A · 约 45 分钟</div></div>
+          <div class="day"><div class="dw">周二</div><div class="dp">力量</div><div class="dn">下肢 A＋辅助 · 约 40 分钟</div></div>
+          <div class="day"><div class="dw">周三</div><div class="dp">游泳</div><div class="dn">晚间技术有氧</div></div>
+          <div class="day"><div class="dw">周四</div><div class="dp">力量</div><div class="dn">上肢 B</div></div>
+          <div class="day today"><div class="dw">周五</div><div class="dp">力量＋游泳</div><div class="dn">轻下肢＋技术 约 35 分钟 · 晚轻松游 1100 米</div></div>
+          <div class="day rest"><div class="dw">周六</div><div class="dp">休息</div><div class="dn">不安排训练</div></div>
+          <div class="day"><div class="dw">周日</div><div class="dp">游泳</div><div class="dn">中午 · 重点课</div></div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:1rem">陆上力量要点</h3>
+          <ul class="rules">
+            <li>卧推 <b>3 组 × 8–12 次</b>；深蹲 <b>3 组 × 8–10 次</b>；轻深蹲 <b>2 组 × 8–10 次</b>。</li>
+            <li><b>减疲劳起始量：</b>每组保留约 3–4 次规范动作的余力，不要求力竭。</li>
+            <li><b>加重规则：</b>连续两次达到次数上限、且恢复良好，再加最小一档重量。</li>
+          </ul>
+          <h3 style="font-size:1rem;margin-top:16px">游泳配速参考</h3>
+          <ul class="rules">
+            <li>两次 3×300，配速约 <b>1:56</b>。</li>
+            <li>连续 1500 米登记成绩 <b>28:52</b>。</li>
+            <li>重点课配速区间 <b>1:58–2:02</b>。</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ================= 说明与记录（默认折叠） ================= -->
+      <section>
+        <h2>说明与记录 <span class="h2-note">平时不用看，点标题才展开</span></h2>
+      <details class="fold">
+        <summary>核实说明</summary>
+        <div class="fold-body">
+<div class="verify">
+        <p class="vt">核实说明（2026 年 11 月 15 日）</p>
+        <p>这一页的内容是 <b>2026 年 11 月 15 日从本地站（192.168.110.46:8000）直接看到的</b>，<b>整周 11/16–11/22 的食谱已于 2026 年 11 月 15 日夜里逐天核实补全</b>，连同本周食材合计、份量与补剂说明、训练状态。站上几处对不上的地方在下方单独标出，没有自行调和。之前框架里估算的热量目标、加餐库等占位说法已经撤下。<b>另有两处不是站上的内容：2026 年 11 月 15 日你定的午餐调整已应用到力量日（周一、二、四、五），见下方说明框；周日也已按你确认的中午游泳（12:00–13:30）改成午餐分两顿，见周日那天。涉及的数字以调整为准，其余仍是站上原样。另有同日定的蛋白来源调整：周五午餐换三文鱼排、周日晚餐换牛排，只换这两处，见下方说明框。</b></p>
+      </div>
+        </div>
+      </details>
+
+      <details class="fold">
+        <summary>午餐调整说明（2026 年 11 月 15 日定）</summary>
+        <div class="fold-body">
+<div class="adjust">
+        <p class="at">午餐调整（2026 年 11 月 15 日定，先试两周）</p>
+        <p>只改力量日（周一、二、四、五）的午餐和晚餐，其他日子不动。每天食材总量不变，只是午餐和晚餐之间重新分配（FOYES 除外）：</p>
+        <ul>
+          <li><b>FOYES 加量：</b>力量日午餐从 50 克加到 75 克；游泳日 35 克、休息日不喝，都不变。周合计从 270 克变成 370 克（力量日 4 天 × 75 克 ＋ 游泳日 2 天 × 35 克）。</li>
+          <li><b>米饭挪晚餐：</b>午餐米饭从 300 克（熟重）减到 200 克，减下的 100 克挪到当日晚餐，晚餐米饭从 150 克变成 250 克。<b>周四例外：</b>周四午餐主食本来就是荞麦面、没有米饭，荞麦面保持 120 克干重（2 整包）不减，晚餐米饭也保持 150 克熟重；周四蔬菜按下面一条，每餐单独写明克数。</li>
+          <li><b>蔬菜每餐单独写：</b>午餐蔬菜 150–200 克，中午吃完；晚餐蔬菜另备 150–200 克，不从午餐里减。游前、游后小份的蔬菜 100 克。</li>
+          <li><b>鹰嘴豆挪晚餐：</b>有鹰嘴豆的力量日（周一、周二、周五），鹰嘴豆 100 克从午餐挪到晚餐。</li>
+        </ul>
+        <p style="margin-top:8px"><b>周日另改：</b>周日游泳在中午 12:00–13:30，午餐改成分两顿（游前约 11:30 只吃米饭 150 克加蔬菜 100 克，游后约 13:30 吃鸡胸肉片 200 克、米饭 150 克、蔬菜 150–200 克和 FOYES 35 克），晚餐 19:30 正常吃，蔬菜 150–200 克，不再分游前游后；全天总量不变，细节见周日那天。</p>
+        <p style="margin-top:8px"><b>为什么这么改：</b>中午力量训练后只有约 15 分钟吃饭、13:30 要上班，午餐体积太大，吃撑了又没时间午休。办法是把一部分固体热量换成液体热量，午餐吃得更快、更不撑，吃完还能留出小憩时间。<b>先试两周，按晨重趋势再决定要不要继续加。</b></p>
+      </div>
+        </div>
+      </details>
+
+      <details class="fold">
+        <summary>蛋白来源调整（2026 年 11 月 15 日定）</summary>
+        <div class="fold-body">
+<div class="adjust">
+        <p class="at">蛋白来源新增（2026 年 11 月 15 日定，只换两处）</p>
+        <ul>
+          <li><b>周五午餐：</b>琵琶腿 200 克换成三文鱼排 200 克（一片）。</li>
+          <li><b>周日晚餐：</b>琵琶腿 100 克换成牛排 100 克（一片）。</li>
+          <li><b>鸡蛋灵活替换：</b>早餐每天 1 个鸡蛋不变；另外，2 个鸡蛋可以顶一顿晚餐的肉（约 100 克肉的量），或者饿的时候午餐多加 1 个鸡蛋。</li>
+          <li><b>牛排提醒：</b>牛排是红肉，一周一次就好，不要天天吃——你 LDL 偏高，红肉还是悠着点。</li>
+        </ul>
+        <p style="margin-top:8px">其他日子不动。每周合计同步改：琵琶腿从 800 克改成 500 克，新增三文鱼排 200 克、牛排 100 克。</p>
+      </div>
+        </div>
+      </details>
+
+      <details class="fold">
+        <summary>一周轮换规律</summary>
+        <div class="fold-body">
+<p class="fold-note">从七天食谱里看出来的排法</p>
+<div class="card">
+          <ul class="rules">
+            <li><b>午餐蛋白轮换。</b>琵琶腿、金枪鱼、鸡胸肉、虾、三文鱼排轮着来：周一琵琶腿、周二金枪鱼、周三鸡胸肉、周四虾、周五三文鱼排、周六金枪鱼、周日鸡胸肉。</li>
+            <li><b>晚餐蛋白同样轮换。</b>周一琵琶腿、周二虾、周三鸡胸肉、周四琵琶腿、周五虾、周六鸡胸肉、周日牛排。牛排是红肉，一周就这一顿。</li>
+            <li><b>早餐主食轮换。</b>燕麦 70 克出现在周一、三、五、日；全麦面包 105 克出现在周二、四、六。</li>
+            <li><b>蔬菜分三组，每三天一轮。</b>黄瓜 / 包菜 / 胡萝卜（周一、四、日），西兰花 / 菠菜 / 茄子（周二、五），西葫芦 / 菜花 / 甜椒（周三、六）。</li>
+            <li><b>FOYES 按训练日定量。</b>力量日 75 克（2026 年 11 月 15 日调整，原 50 克）、游泳日 35 克、休息日 0 克，一周合计 370 克。</li>
+            <li><b>力量日午餐减量、晚餐补回（2026 年 11 月 15 日调整）。</b>午餐米饭 200 克，减下的米饭、以及鹰嘴豆（周一、二、五）都挪到当日晚餐，晚餐米饭 250 克；蔬菜不挪，午餐 150–200 克中午吃完，晚餐另备 150–200 克；全天总量不变。周四例外：午餐主食是荞麦面 120 克（2 整包）不减量，晚餐米饭保持 150 克，蔬菜午餐、晚餐各 150–200 克。</li>
+            <li><b>周日中午游泳，午餐分两顿（2026 年 11 月 15 日调整）。</b>游前约 11:30 只吃米饭 150 克加蔬菜 100 克，游后约 13:30 吃鸡胸肉片 200 克、米饭 150 克、蔬菜 150–200 克和 FOYES 35 克；晚餐 19:30 正常吃，蔬菜 150–200 克。全天总量不变。</li>
+          </ul>
+        </div>
+        </div>
+      </details>
+
+      <details class="fold">
+        <summary>站上对不上的地方</summary>
+        <div class="fold-body">
+<p class="fold-note">如实标出，没有自行调和</p>
+<div class="card">
+          <ul class="rules">
+            <li><b>周日游泳的时间。</b>站上周日食谱仍按晚上游泳排（19:00 游前吃主食、21:00–21:30 游后吃），但实际是中午 12:00–13:30。本页周日已按中午游泳改成午餐分两顿、晚餐 19:30 正常吃，全天总量与站上一致；站上那页本身还没改。</li>
+            <li><b>周三游泳距离。</b>训练计划里写 1400 米，食谱页写 1500 米，两个数不一样。</li>
+            <li><b>每周水果合计。</b>本周食材清单写水果 2100 克，但每天只列 150 克，七天加起来是 1050 克，对不上。</li>
+            <li><b>每周大米合计。</b>本周食材清单写大米 850 克（干重），但每天米饭熟重加起来约 2550 克，两个口径对不上。</li>
+          </ul>
+        </div>
+        </div>
+      </details>
+
+      <details class="fold">
+        <summary>下周购物清单（11/23–11/29）</summary>
+        <div class="fold-body">
+<p class="fold-note">按上面一周食谱逐餐合计，照单备货用</p>
+<div class="card" style="padding-top:6px;padding-bottom:6px">
+          <table class="swap">
+            <tr><th>食材</th><th style="text-align:right">下周合计</th></tr>
+            <tr><td>FOYES 增肌粉</td><td>70 克</td></tr>
+            <tr><td>米饭（熟重，150 克一包）</td><td>2,100 克（14 包）</td></tr>
+            <tr><td>琵琶腿</td><td>500 克</td></tr>
+            <tr><td>金枪鱼</td><td>240 克</td></tr>
+            <tr><td>鸡胸肉片</td><td>650 克</td></tr>
+            <tr><td>虾</td><td>450 克</td></tr>
+            <tr><td>三文鱼排</td><td>200 克（1 片）</td></tr>
+            <tr><td>牛排</td><td>100 克（1 片）</td></tr>
+            <tr><td>鹰嘴豆</td><td>400 克</td></tr>
+            <tr><td>荞麦面</td><td>240 克</td></tr>
+            <tr><td>鸡蛋</td><td>7 个</td></tr>
+            <tr><td>酸奶</td><td>945 克（135 克 × 7 罐）</td></tr>
+            <tr><td>水果</td><td>1,050 克</td></tr>
+            <tr><td>无盐坚果</td><td>70 克</td></tr>
+            <tr><td>全麦面包（加餐）</td><td>320 克</td></tr>
+            <tr><td>燕麦</td><td>280 克</td></tr>
+            <tr><td>全麦面包（早餐）</td><td>315 克</td></tr>
+            <tr><td>橄榄油</td><td>160 克</td></tr>
+          </table>
+        </div>
+        </div>
+      </details>
+
+      <details class="fold">
+        <summary>份量与补剂说明</summary>
+        <div class="fold-body">
+<p class="fold-note">本地站原说明，力量日 FOYES 已按 11/15 调整同步为 75 克（称重口径在第 5 条）</p>
+<div class="card">
+          <ol class="rules">
+            <li><b>按个人配置生成。</b>这套份量是按已保存的个人配置生成的，不是通用模板。</li>
+            <li><b>FOYES 什么时候喝。</b>午间力量后随午餐喝 75 克（2026 年 11 月 15 日调整，原 50 克）；只有游泳的日子，游后喝 35 克；休息日不安排；双练日只喝午间一份。</li>
+            <li><b>FOYES 营养成分（每 100 克）。</b>能量 1563 千焦、蛋白质 23 克、碳水 67 克、脂肪 0.9 克、钠 172 毫克。配料表未提供，不能认定它无糖或低 GI。</li>
+            <li><b>喝粉日子的近似能量替换。</b>喝 75 克粉的日子（力量日）：面包 80 克减为 40 克、坚果 10 克减为 0；喝 35 克粉的日子：面包 40 克、坚果 5 克；不喝粉则恢复面包 80 克、坚果 10 克。这是近似能量替换，不是精确等值。</li>
+            <li><b>称重口径。</b>米饭都是熟重；力量日按 11/15 调整为午餐 200 克、晚餐 250 克（周四晚餐仍 150 克，午餐主食是荞麦面），其余日子仍是 150 克 / 300 克两种；荞麦面 60 克一整包，周四午餐吃 2 整包（120 克干重）；肉按生重称。</li>
+            <li><b>作息。</b>早餐 08:30–09:00、力量 12:00–12:40、午饭 12:45–13:00、下午茶 15:00、普通日晚餐 19:30。周三、周五晚间游泳日 19:00 先吃小份主食、约 20 点下水，游后 21:00–21:30 吃小份肉菜和当天的粉；周日游泳在中午，不按晚间这个点走。胃胀时减少游前食量，或把主食提前到午餐。</li>
+            <li><b>食材规则。</b>不安排西红柿或白蘑菇；同类蔬菜间隔两天再出现；茄子蒸烤少油、鸡肉去皮、加工肉少加酱盐；保留燕麦和豆类。LDL 偏高的饮食仍需结合血脂与产品标签校准。</li>
+            <li><b>份量可以调。</b>份量是可调整的参考，不是精确热量处方：按两周晨重均值、饥饿感和训练恢复来调。15 点不饿，可以把加餐分段吃。</li>
+          </ol>
+        </div>
+        </div>
+      </details>
+
+      <details class="fold">
+        <summary>备餐清单</summary>
+        <div class="fold-body">
+<h3 class="fold-sub">下班前备菜 <span class="h2-note">提醒点一：备晚餐和隔天中午的菜</span></h3>
+        <div class="card">
+          <ul class="prep-list">
+            <li><span class="box"></span><div><span class="pt">今晚晚餐缺啥，路上买</span><div class="pd">按今晚的安排想一遍蛋白、主食、蔬菜，缺的下班路上补齐。</div></div></li>
+            <li><span class="box"></span><div><span class="pt">定明天午餐的菜</span><div class="pd">冻着的蛋白今晚到家先移冷藏解冻，新鲜的缺货就顺路买。</div></div></li>
+            <li><span class="box"></span><div><span class="pt">对照下周购物清单查库存</span><div class="pd">面包、水果、酸奶这类消耗快的，对着上面的下周合计看还差多少。</div></div></li>
+          </ul>
+        </div>
+<h3 class="fold-sub">今晚备明天 <span class="h2-note">提醒点二：明早吃什么、午餐带什么、加餐带什么</span></h3>
+        <div class="card">
+          <ul class="prep-list">
+            <li><span class="box"></span><div><span class="pt">备早餐</span><div class="pd">明早的燕麦、鸡蛋、酸奶提前放到顺手的位置，08:30 起来直接吃。</div></div></li>
+            <li><span class="box"></span><div><span class="pt">装午餐盒</span><div class="pd">主食＋蛋白＋蔬菜分装冷藏，明天练完直接加热；要现做的，蛋白今晚腌好或移到冷藏解冻。</div></div></li>
+            <li><span class="box"></span><div><span class="pt">装加餐袋</span><div class="pd">15 点下午茶的面包按当天喝不喝粉定量：喝 75 克粉带 40 克、不喝粉带 80 克，前一晚装进包里。</div></div></li>
+            <li><span class="box"></span><div><span class="pt">游泳包放门口</span><div class="pd">周三、周五晚间游泳日把泳衣、泳镜、毛巾装包放门口，19 点到家拎了就能走；周日是中午游泳，前一晚先把包备好。</div></div></li>
+          </ul>
+        </div>
+        </div>
+      </details>
+      </section>
+
+      <p class="foot">本页饮食内容为 2026 年 11 月 15 日从本地站核实到的整周记录；份量是可调整的参考，不是精确热量处方或医疗建议，按两周晨重均值、饥饿和训练恢复调整。LDL 偏高相关饮食仍需结合血脂与产品标签校准。</p>
+
+    </div>
+  </body>
+</html>
